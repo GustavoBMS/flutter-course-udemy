@@ -19,6 +19,18 @@ class _TodoListPageState extends State<TodoListPage> {
   Todo? deletedTodo;
   int? deletedTodoPos;
 
+  // initState aparece quando o widget é chamado
+  @override
+  void initState() {
+    super.initState();
+
+    todoRepository.getTodoList().then((value) {
+      setState(() {
+        todos = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -34,13 +46,13 @@ class _TodoListPageState extends State<TodoListPage> {
                     Expanded(
                       child: TextField(
                         controller: todoController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: "Adicionar tarefa",
                             hintText: "Estudar Flutter"),
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () {
                         String text = todoController.text;
@@ -92,7 +104,7 @@ class _TodoListPageState extends State<TodoListPage> {
                     ),
                     ElevatedButton(
                       onPressed: showDeletedTodosConfirmationDialog,
-                      child: Text("Limpar tudo"),
+                      child: const Text("Limpar tudo"),
                       style: ElevatedButton.styleFrom(
                           primary: const Color(0xff00d7f3),
                           padding: const EdgeInsets.all(14)),
@@ -114,6 +126,7 @@ class _TodoListPageState extends State<TodoListPage> {
     setState(() {
       todos.remove(todo);
     });
+    todoRepository.saveTodoList(todos);
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -129,6 +142,7 @@ class _TodoListPageState extends State<TodoListPage> {
           setState(() {
             todos.insert(deletedTodoPos!, deletedTodo!);
           });
+          todoRepository.saveTodoList(todos);
         },
       ),
       duration: const Duration(seconds: 5),
@@ -139,8 +153,8 @@ class _TodoListPageState extends State<TodoListPage> {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              title: Text("Limpar Tudo?"),
-              content: Text(
+              title: const Text("Limpar Tudo?"),
+              content: const Text(
                   "Você tem certeza de que deseja apagar todas as tarefas?"),
               actions: [
                 TextButton(
@@ -148,14 +162,14 @@ class _TodoListPageState extends State<TodoListPage> {
                       Navigator.of(context).pop();
                     },
                     style: TextButton.styleFrom(primary: Color(0xff00d7f3)),
-                    child: Text("Cancelar")),
+                    child: const Text("Cancelar")),
                 TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                       deleteAllTodos();
                     },
                     style: TextButton.styleFrom(primary: Colors.red),
-                    child: Text("Limpar tudo"))
+                    child: const Text("Limpar tudo"))
               ],
             ));
   }
@@ -164,5 +178,6 @@ class _TodoListPageState extends State<TodoListPage> {
     setState(() {
       todos.clear();
     });
+    todoRepository.saveTodoList(todos);
   }
 }
